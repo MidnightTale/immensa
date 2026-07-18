@@ -29,7 +29,9 @@ jobs:
         uses: gradle/actions/wrapper-validation@v4
 
       - name: Build
-        run: ./gradlew build --console=plain
+        run: |
+          chmod +x gradlew
+          ./gradlew build --console=plain
         env:
           CI: "true"
 
