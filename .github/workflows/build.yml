@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - multiloader
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Build
+        run: ./gradlew build --console=plain
+        env:
+          CI: "true"
+
+      - name: Upload Fabric jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: fabric-jar
+          path: |
+            fabric/build/libs/*.jar
+            !fabric/build/libs/*-dev.jar
+            !fabric/build/libs/*-sources.jar
+          if-no-files-found: warn
+
+      - name: Upload NeoForge jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: neoforge-jar
+          path: |
+            neoforge/build/libs/*.jar
+            !neoforge/build/libs/*-dev.jar
+            !neoforge/build/libs/*-sources.jar
+          if-no-files-found: warn

@@ -1,0 +1,110 @@
+// Shared ONNX Runtime variant + packaging logic for the fabric and neoforge
+// loader modules. Applied AFTER the loader plugin (fabric-loom / moddev).
+//
+// Variants (exactly one, default universal):
+//   -PuseCuda=true   Linux/server CUDA runtime
+//   -PuseDml=true    Windows DirectML runtime (locally built jar in libs/)
+//   -PuseCpu=true    Plain CPU runtime
+//   (default)        Universal: official gpu jar (Linux CUDA/CPU) with its
+//                    win-x64 natives replaced by the DirectML build.
+plugins {
+    id 'maven-publish'
+}
+
+def useUniversal = project.ext.useUniversal
+def useCuda = project.ext.useCuda
+def useDml = project.ext.useDml
+def useCpu = project.ext.useCpu
+def onnxRuntimeVersion = project.ext.onnxRuntimeVersion
+def buildVariant = project.ext.buildVariant
+def isFabric = project.plugins.hasPlugin('fabric-loom')
+
+// The universal runtime jar is assembled once in :common (official gpu jar
+// with stripped signatures + win-x64 natives from libs/onnxruntime-dml.jar).
+def universalOnnxRuntimeJar = project(':common').tasks.named('buildUniversalOnnxRuntime', Jar)
+def universalOnnxRuntimeFiles = files(universalOnnxRuntimeJar.flatMap { it.archiveFile })
+
+repositories {
+    // Locally built DirectML runtime (onnxruntime-dml.jar) for the dml variant.
+    flatDir { dirs rootProject.file('libs') }
+}
+
+configurations {
+    // Resolvable copy of the per-variant runtime, flattened into the mod jar
+    // on NeoForge (jar-in-jar is a Fabric-only concept, so we flatten there).
+    variantOnnxRuntime {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    if (useUniversal) {
+        implementation universalOnnxRuntimeFiles
+    } else if (useCuda) {
+        implementation "com.microsoft.onnxruntime:onnxruntime_gpu:${onnxRuntimeVersion}"
+        variantOnnxRuntime "com.microsoft.onnxruntime:onnxruntime_gpu:${onnxRuntimeVersion}"
+        if (isFabric) {
+            include "com.microsoft.onnxruntime:onnxruntime_gpu:${onnxRuntimeVersion}"
+        }
+    } else if (useCpu) {
+        implementation "com.microsoft.onnxruntime:onnxruntime:${onnxRuntimeVersion}"
+        variantOnnxRuntime "com.microsoft.onnxruntime:onnxruntime:${onnxRuntimeVersion}"
+        if (isFabric) {
+            include "com.microsoft.onnxruntime:onnxruntime:${onnxRuntimeVersion}"
+        }
+    } else if (useDml) {
+        implementation 'com.microsoft.onnxruntime:onnxruntime-dml:1.0'
+        variantOnnxRuntime 'com.microsoft.onnxruntime:onnxruntime-dml:1.0'
+        if (isFabric) {
+            include 'com.microsoft.onnxruntime:onnxruntime-dml:1.0'
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Packaging: fabric keeps jar-in-jar (`include`) for cuda/cpu/dml and flattens
+// the universal jar (historic behavior); neoforge flattens for every variant.
+// ---------------------------------------------------------------------------
+def flattenExcludes = {
+    exclude 'META-INF/MANIFEST.MF'
+    exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
+}
+
+tasks.named('jar', Jar).configure {
+    from(rootProject.file('LICENSE.txt')) {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+    if (useUniversal) {
+        dependsOn universalOnnxRuntimeJar
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from({ zipTree(universalOnnxRuntimeJar.get().archiveFile.get().asFile) }, flattenExcludes)
+    } else if (!isFabric) {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from({ zipTree(configurations.variantOnnxRuntime.singleFile) }, flattenExcludes)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Resource expansion shared by both loaders (build-variant.properties lives in
+// :common and is copied through each loader's processResources).
+// ---------------------------------------------------------------------------
+processResources {
+    inputs.property "build_variant", buildVariant
+    filteringCharset "UTF-8"
+    filesMatching("build-variant.properties") {
+        expand "build_variant": buildVariant
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

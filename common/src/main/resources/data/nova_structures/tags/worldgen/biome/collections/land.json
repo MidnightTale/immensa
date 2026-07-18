@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/plains",
+    "#immensa:compat/forest",
+    "#immensa:compat/taiga",
+    "#immensa:compat/snowy",
+    "#immensa:compat/desert",
+    "#immensa:compat/badlands",
+    "#immensa:compat/savanna",
+    "#immensa:compat/jungle",
+    "#immensa:compat/swamp",
+    "#immensa:compat/mountain"
+  ]
+}

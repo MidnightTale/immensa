@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_snowy",
+      "required": false
+    },
+    {
+      "id": "#c:is_cold",
+      "required": false
+    },
+    {
+      "id": "minecraft:snowy_plains",
+      "required": false
+    },
+    {
+      "id": "minecraft:snowy_slopes",
+      "required": false
+    },
+    {
+      "id": "minecraft:frozen_peaks",
+      "required": false
+    },
+    {
+      "id": "minecraft:jagged_peaks",
+      "required": false
+    },
+    {
+      "id": "immensa:snowy_taiga_sparse",
+      "required": false
+    }
+  ]
+}

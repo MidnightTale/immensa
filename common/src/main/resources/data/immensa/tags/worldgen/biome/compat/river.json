@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_river",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_river",
+      "required": false
+    },
+    {
+      "id": "minecraft:river",
+      "required": false
+    },
+    {
+      "id": "minecraft:frozen_river",
+      "required": false
+    },
+    {
+      "id": "still_life:temperate_river",
+      "required": false
+    },
+    {
+      "id": "still_life:arctic_river",
+      "required": false
+    }
+  ]
+}

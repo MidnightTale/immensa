@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/plains",
+    "#immensa:compat/forest",
+    "#immensa:compat/savanna",
+    "#immensa:compat/cave_temperate",
+    "#immensa:compat/cave_lush"
+  ]
+}

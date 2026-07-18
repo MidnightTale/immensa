@@ -1,0 +1,76 @@
+// Shared baseline for every immensa module (common + loaders).
+// Adapted from jaredlll08/MultiLoader-Template (1.21.11 branch).
+plugins {
+    id 'java-library'
+}
+
+// ---------------------------------------------------------------------------
+// ONNX build variant flags (shared so version/capabilities stay consistent).
+// ---------------------------------------------------------------------------
+def useCuda = project.hasProperty('useCuda') && project.property('useCuda').toString().toLowerCase() == 'true'
+def useDml = project.hasProperty('useDml') && project.property('useDml').toString().toLowerCase() == 'true'
+def useCpu = project.hasProperty('useCpu') && project.property('useCpu').toString().toLowerCase() == 'true'
+if ([useCuda, useDml, useCpu].count { it } > 1) {
+    throw new GradleException("Only one of -PuseCuda, -PuseDml, or -PuseCpu may be specified at a time.")
+}
+def useUniversal = !useDml && !useCpu && !useCuda
+def buildVariant = useUniversal ? 'universal' : useCuda ? 'cuda' : useDml ? 'windows' : 'cpu'
+println "[${project.name}] Build variant: ${useUniversal ? 'Universal (Windows DirectML + Linux CUDA/CPU)' : useCuda ? 'CUDA' : useDml ? 'DirectML (Windows)' : 'CPU'}"
+
+project.ext.useCuda = useCuda
+project.ext.useDml = useDml
+project.ext.useCpu = useCpu
+project.ext.useUniversal = useUniversal
+project.ext.buildVariant = buildVariant
+project.ext.onnxRuntimeVersion = '1.23.2'
+
+version = "${project.mod_version}-${buildVariant}+${project.minecraft_version}"
+
+base {
+    archivesName = "${project.archives_base_name}-${project.name}"
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    it.options.encoding = "UTF-8"
+    it.options.release.set(targetJavaVersion)
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    // Loom attaches RemapSourcesJar to "build" when this is enabled. Off by default; use -PwithSourcesJar=true.
+    def withSourcesJar = project.hasProperty('withSourcesJar') && project.property('withSourcesJar').toString().toLowerCase() == 'true'
+    if (withSourcesJar) {
+        withSourcesJar()
+    }
+}
+
+repositories {
+    mavenCentral()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sponge'
+                url = 'https://repo.spongepowered.org/repository/maven-public'
+            }
+        }
+        filter { includeGroupAndSubgroups('org.spongepowered') }
+    }
+}
+
+// Declare capabilities on the outgoing configurations so loaders can depend on
+// :common without Gradle complaining about variant ambiguity.
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    def conf = configurations.findByName(variant)
+    if (conf != null) {
+        conf.outgoing {
+            capability("$group:${project.name}:$version")
+            capability("$group:${base.archivesName.get()}:$version")
+            capability("$group:${project.archives_base_name}-${project.name}-${project.minecraft_version}:$version")
+            capability("$group:${project.archives_base_name}:$version")
+        }
+    }
+}

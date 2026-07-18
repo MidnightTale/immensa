@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_desert",
+      "required": false
+    },
+    {
+      "id": "minecraft:desert",
+      "required": false
+    },
+    {
+      "id": "still_life:arid_desert",
+      "required": false
+    },
+    {
+      "id": "still_life:arid_highlands",
+      "required": false
+    }
+  ]
+}

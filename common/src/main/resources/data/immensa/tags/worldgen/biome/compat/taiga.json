@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_taiga",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_taiga",
+      "required": false
+    },
+    {
+      "id": "immensa:taiga_sparse",
+      "required": false
+    }
+  ]
+}

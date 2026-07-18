@@ -1,0 +1,107 @@
+# ---------- IntelliJ IDEA ----------
+.idea/
+.idea_modules/
+*.iml
+*.ipr
+*.iws
+atlassian-ide-plugin.xml
+
+# ---------- Eclipse ----------
+.classpath
+.project
+.settings/
+bin/
+
+# ---------- VS Code / Cursor ----------
+.vscode/
+.cursor/
+.history/
+
+# ---------- Java / build outputs ----------
+*.class
+out/
+.gradle/
+build/
+**/build/
+gradle-app.setting
+.gradletasknamecache
+
+# ---------- Logs ----------
+logs/
+*.log
+hs_err_pid*
+replay_pid*
+
+# ---------- Dev run directories (NEVER commit: 13+ GB of worlds/mods/caches) ----------
+# Unanchored: matches run/ at repo root and any module level (fabric/run, neoforge/run, common/run, ...)
+run/
+runs/
+**/run/
+**/runs/
+
+# ---------- Mod runtime / test pollution ----------
+# Unit tests run without a loader, so config/logs land in the module working directory.
+/common/config/
+/common/logs/
+# Model/tile caches: old and new names, ignored at any level
+**/terrain-diffusion-cache/
+**/terrain-diffusion-models/
+**/immensa-cache/
+**/immensa-models/
+# Downloaded model weights are fetched at runtime; keep them out of the repo
+*.onnx
+
+# ---------- Package files ----------
+# Jars are build artifacts, EXCEPT the committed wrapper and the custom
+# DirectML ONNX Runtime build required by common/build.gradle.
+*.jar
+!gradle-wrapper.jar
+!libs/*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ---------- Temp / crash files ----------
+*.tmp
+*.stackdump
+*~
+.fuse_hidden*
+.nfs*
+
+# ---------- OS junk: macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.directory
+.Trash-*
+
+# ---------- OS junk: Windows ----------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk

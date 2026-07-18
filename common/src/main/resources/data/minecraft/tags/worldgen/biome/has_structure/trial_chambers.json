@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/cave_temperate",
+    "#immensa:compat/cave_cold",
+    "#immensa:compat/cave_hot",
+    "#immensa:compat/cave_lush",
+    "#immensa:compat/cave_deep",
+    "#immensa:compat/cave_rock",
+    "#immensa:compat/cave_spooky"
+  ]
+}

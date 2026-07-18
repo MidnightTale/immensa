@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/desert",
+    "#immensa:compat/badlands",
+    "#immensa:compat/cave_hot"
+  ]
+}

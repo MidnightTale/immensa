@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_mountain",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_mountain",
+      "required": false
+    },
+    {
+      "id": "minecraft:meadow",
+      "required": false
+    },
+    {
+      "id": "minecraft:stony_peaks",
+      "required": false
+    },
+    {
+      "id": "still_life:wooded_highlands",
+      "required": false
+    },
+    {
+      "id": "still_life:barren_peaks",
+      "required": false
+    },
+    {
+      "id": "still_life:snowy_peaks",
+      "required": false
+    }
+  ]
+}

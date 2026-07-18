@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_savanna",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_savanna",
+      "required": false
+    },
+    {
+      "id": "minecraft:savanna",
+      "required": false
+    },
+    {
+      "id": "still_life:grassland_savanna",
+      "required": false
+    }
+  ]
+}

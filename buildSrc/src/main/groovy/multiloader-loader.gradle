@@ -1,0 +1,49 @@
+// Applied to loader modules (fabric, neoforge): pulls :common in as SOURCE
+// (java + resources) instead of a binary dependency.
+// Adapted from jaredlll08/MultiLoader-Template (1.21.11 branch).
+plugins {
+    id 'multiloader-common'
+}
+
+configurations {
+    commonJava {
+        canBeResolved = true
+    }
+    commonResources {
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    compileOnly(project(':common')) {
+        capabilities {
+            requireCapability "$group:${project.archives_base_name}"
+        }
+        def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+processResources {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+// The model-assets manifest is generated once in :common and flows into every
+// loader jar at the root of the resources.
+def generateModelAssetManifest = project(':common').tasks.named('generateModelAssetManifest')
+processResources {
+    dependsOn(generateModelAssetManifest)
+    from(generateModelAssetManifest.map { it.outputs.files }) {
+        into ''
+    }
+}

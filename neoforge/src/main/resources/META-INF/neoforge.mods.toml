@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "${neoforge_loader_version_range}"
+license = "${license}"
+
+# The mod id "immensa" is valid both as an FML mod id and as a ResourceLocation
+# namespace, so the same identifier is used on both loaders. The @Mod annotation in
+# ImmensaNeoForge uses the same value as modId below.
+[[mods]]
+modId = "immensa"
+version = "${version}"
+displayName = "Immensa"
+description = "Terrain Diffusion in Minecraft"
+
+[[mixins]]
+config = "immensa.mixins.json"
+
+[[mixins]]
+config = "immensa.client.mixins.json"
+
+[[dependencies.immensa]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.immensa]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

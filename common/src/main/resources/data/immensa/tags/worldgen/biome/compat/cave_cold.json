@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:dripstone_caves",
+      "required": false
+    },
+    {
+      "id": "still_life:frozen_caves",
+      "required": false
+    },
+    {
+      "id": "still_life:barren_caves",
+      "required": false
+    },
+    {
+      "id": "immensa:alpine_galleries",
+      "required": false
+    },
+    {
+      "id": "immensa:limestone_cathedral",
+      "required": false
+    }
+  ]
+}

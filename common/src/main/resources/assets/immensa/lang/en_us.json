@@ -1,0 +1,15 @@
+{
+  "biome.immensa.limestone_cathedral": "Limestone Cathedral",
+  "biome.immensa.crystal_grotto": "Crystal Grotto",
+  "biome.immensa.subterranean_wetlands": "Subterranean Wetlands",
+  "biome.immensa.volcanic_chambers": "Volcanic Chambers",
+  "biome.immensa.echoing_abyss": "Echoing Abyss",
+  "biome.immensa.alpine_galleries": "Alpine Galleries",
+  "generator.immensa.terrain_diffusion": "Immensa",
+  "immensa.world_settings.title": "Terrain Settings",
+  "immensa.world_settings.open_button": "Terrain Settings",
+  "immensa.world_settings.scale": "World Scale",
+  "immensa.world_settings.world_scale_description": "Set World Scale for this world.",
+  "immensa.world_settings.scale_error": "Scale must be an integer >= 1"
+}
+

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:lush_caves",
+      "required": false
+    },
+    {
+      "id": "still_life:glowing_caves",
+      "required": false
+    },
+    {
+      "id": "still_life:mushroom_caves",
+      "required": false
+    },
+    {
+      "id": "immensa:subterranean_wetlands",
+      "required": false
+    },
+    {
+      "id": "immensa:crystal_grotto",
+      "required": false
+    }
+  ]
+}

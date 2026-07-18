@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/plains",
+    "#immensa:compat/savanna",
+    "#immensa:compat/taiga",
+    "#immensa:compat/snowy"
+  ]
+}

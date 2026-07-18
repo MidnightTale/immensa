@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_badlands",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_badlands",
+      "required": false
+    },
+    {
+      "id": "minecraft:badlands",
+      "required": false
+    },
+    {
+      "id": "still_life:arid_highlands",
+      "required": false
+    }
+  ]
+}

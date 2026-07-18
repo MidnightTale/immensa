@@ -1,0 +1,66 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
+    id 'immensa-packaging'
+}
+
+neoForge {
+    version = project.neoforge_version
+    // The mods key must match the FML mod id declared in neoforge.mods.toml /
+    // the @Mod annotation.
+    mods {
+        "immensa" {
+            sourceSet sourceSets.main
+        }
+    }
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "neoforge_version", project.neoforge_version
+    inputs.property "neoforge_loader_version_range", project.neoforge_loader_version_range
+    inputs.property "minecraft_version_range", project.minecraft_version_range
+    inputs.property "license", project.license
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand "version": project.version,
+                "neoforge_version": project.neoforge_version,
+                "neoforge_loader_version_range": project.neoforge_loader_version_range,
+                "minecraft_version_range": project.minecraft_version_range,
+                "license": project.license
+    }
+}
+
+// Implement mcgradleconventions loader attribute (prevents loom/MDG variant
+// collisions when resolving :common).
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    def conf = configurations.findByName(variant)
+    if (conf != null) {
+        conf.attributes {
+            attribute(loaderAttribute, 'neoforge')
+        }
+    }
+}
+sourceSets.configureEach {
+    def variants = [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName]
+    def jarJarConfig = configurations.findByName(it.getTaskName(null, 'jarJar'))
+    if (jarJarConfig != null) {
+        variants.add(jarJarConfig.name)
+    }
+    variants.each { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, 'neoforge')
+            }
+        }
+    }
+}

@@ -1,0 +1,95 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+    id 'immensa-packaging'
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Modrinth release JARs are stored in run/mods, but Loom must remap them
+    // before a named development launch (Fabric's Java 25 runtime remapper can
+    // fail on nested Voxy archives with "Inflater has been closed").
+    modLocalRuntime fileTree(dir: 'run/mods', include: ['*.jar'])
+    // Loom strips Jar-in-Jar declarations while remapping local file
+    // dependencies. Supply the extracted nested modules explicitly so C2ME,
+    // Voxy, Iris and Sodium retain the same runtime classpath as their releases.
+    modLocalRuntime fileTree(
+            dir: 'run/loom-nested/mods',
+            include: ['*.jar'],
+            exclude: ['fabric-*.jar'])
+}
+
+loom {
+    mods {
+        "immensa" {
+            sourceSet sourceSets.main
+        }
+    }
+
+    runs {
+        configureEach {
+            ideConfigGenerated true
+        }
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version
+    }
+}
+
+// Implement mcgradleconventions loader attribute (prevents loom/MDG variant
+// collisions when resolving :common).
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
+    def conf = configurations.findByName(variant)
+    if (conf != null) {
+        conf.attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant ->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'fabric')
+            }
+        }
+    }
+}
+loom.remapConfigurations.configureEach {
+    configurations.named(it.name) {
+        attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    systemProperty 'log4j2.configurationFile', rootProject.file('log4j2-dev.xml').absolutePath
+}
+
+// C2ME's OpenCL acceleration module requires Java 25 at runtime. Keep the
+// project bytecode compatible with Java 21 while launching the dev client on 25.
+tasks.named('runClient', JavaExec).configure {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    providers.gradleProperty('quickPlayWorld').orNull?.with { worldName ->
+        args '--quickPlaySingleplayer', worldName
+    }
+    // The JARs above are supplied as Loom-remapped runtime dependencies, so do
+    // not let Fabric discover and remap the original production JARs a 2nd time.
+    systemProperty 'fabric.modsFolder', layout.buildDirectory.dir('empty-fabric-mods').get().asFile.absolutePath
+}

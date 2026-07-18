@@ -1,0 +1,208 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+
+plugins {
+    id 'multiloader-common'
+    id 'net.neoforged.moddev'
+}
+
+// Vanilla mode: provides Minecraft with official Mojang mappings, no loader.
+neoForge {
+    neoFormVersion = project.neoform_version
+}
+
+// ---------------------------------------------------------------------------
+// Universal ONNX Runtime jar: official gpu distribution (Linux CUDA/CPU
+// natives, win-x64 stripped) merged with the locally built Windows DirectML
+// natives. Used by the loader modules for the universal variant and here for
+// unit tests (OnnxRuntimePlatformTest needs natives on the test classpath).
+// ---------------------------------------------------------------------------
+configurations {
+    universalOnnxRuntimeSource {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+def universalOnnxRuntimeJar = tasks.register('buildUniversalOnnxRuntime', Jar) {
+    archiveBaseName = 'onnxruntime-universal'
+    archiveVersion = project.ext.onnxRuntimeVersion
+    destinationDirectory = layout.buildDirectory.dir('generated/onnxruntime')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from({ zipTree(configurations.universalOnnxRuntimeSource.singleFile) }) {
+        exclude 'ai/onnxruntime/native/win-x64/**'
+        exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
+    }
+    from({ zipTree(rootProject.file('libs/onnxruntime-dml.jar')) }) {
+        include 'ai/onnxruntime/native/win-x64/**'
+    }
+    manifest {
+        attributes(
+                'Automatic-Module-Name': 'com.microsoft.onnxruntime',
+                'Implementation-Title': 'onnxruntime-universal',
+                'Implementation-Version': project.ext.onnxRuntimeVersion)
+    }
+}
+def universalOnnxRuntimeFiles = files(universalOnnxRuntimeJar.flatMap { it.archiveFile })
+
+// ---------------------------------------------------------------------------
+// Model asset manifest: queries the pinned Hugging Face revision and records
+// hashes/sizes/URLs. Consumed by processResources of both loader modules (via
+// multiloader-loader.gradle) and by ModelAssetManager at runtime.
+// ---------------------------------------------------------------------------
+def modelRepositorySlug = 'xandergos/terrain-diffusion-30m-onnx'
+def modelRepositoryRevision = 'ad2df557eca5645f588766101cf3bc3682455c3e'
+def generatedManifestDirectory = layout.buildDirectory.dir('generated/model-assets')
+
+tasks.register('generateModelAssetManifest') {
+    inputs.property('modelRepositorySlug', modelRepositorySlug)
+    inputs.property('modelRepositoryRevision', modelRepositoryRevision)
+    outputs.dir(generatedManifestDirectory)
+
+    doLast {
+        File manifestDirectory = generatedManifestDirectory.get().asFile
+        manifestDirectory.mkdirs()
+        File generatedManifestFile = new File(manifestDirectory, 'model-assets-manifest.json')
+
+        String apiUrl = "https://huggingface.co/api/models/${modelRepositorySlug}/revision/${modelRepositoryRevision}?blobs=true"
+        Map modelInfo = new JsonSlurper().parseText(new URL(apiUrl).getText('UTF-8')) as Map
+        List siblings = modelInfo.siblings as List
+
+        List<String> requiredFiles = [
+                'base_model.onnx',
+                'coarse_model.onnx',
+                'decoder_model.onnx',
+                'pipeline_data.json',
+                'world_pipeline_config.json'
+        ]
+
+        Map<String, Object> assetEntries = [:]
+        for (String requiredFileName : requiredFiles) {
+            Map siblingEntry = siblings.find { it.rfilename == requiredFileName } as Map
+            if (siblingEntry == null) {
+                throw new GradleException("Required model asset missing from HF commit ${modelRepositoryRevision}: ${requiredFileName}")
+            }
+
+            String resolveUrl = "https://huggingface.co/${modelRepositorySlug}/resolve/${modelRepositoryRevision}/${requiredFileName}?download=true"
+            long expectedSizeBytes = ((Number) siblingEntry.size).longValue()
+            String expectedSha256
+            if (siblingEntry.lfs instanceof Map && siblingEntry.lfs.sha256 != null) {
+                expectedSha256 = siblingEntry.lfs.sha256 as String
+            } else {
+                byte[] remoteFileBytes = new URL(resolveUrl).bytes
+                expectedSha256 = sha256Hex(remoteFileBytes)
+            }
+
+            assetEntries[requiredFileName] = [
+                    sha256: expectedSha256,
+                    sizeBytes: expectedSizeBytes,
+                    url: resolveUrl
+            ]
+        }
+
+        Map<String, Object> manifestPayload = [
+                repositorySlug: modelRepositorySlug,
+                revision: modelRepositoryRevision,
+                assets: assetEntries
+        ]
+        generatedManifestFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(manifestPayload))
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Dependencies
+// ---------------------------------------------------------------------------
+dependencies {
+    // Mixin annotations only; both loaders ship the mixin runtime themselves.
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    // ONNX Runtime classes for pipeline/OnnxModel.java; the runtime jars are
+    // supplied per-variant by the loader modules.
+    compileOnly "com.microsoft.onnxruntime:onnxruntime_gpu:${project.ext.onnxRuntimeVersion}"
+
+    universalOnnxRuntimeSource "com.microsoft.onnxruntime:onnxruntime_gpu:${project.ext.onnxRuntimeVersion}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
+    // Universal jar carries the ai.onnxruntime classes plus natives.
+    testRuntimeOnly universalOnnxRuntimeFiles
+}
+
+// Unit tests compile and run against the same Minecraft classpath as main
+// (MDG vanilla mode only wires the game into main's classpaths).
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.main.runtimeClasspath
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaExec).configureEach {
+    systemProperty 'log4j2.configurationFile', rootProject.file('log4j2-dev.xml').absolutePath
+}
+
+tasks.register('hydrologyBenchmark', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'th.in.midnight_network.immensa.pipeline.HydrologyBenchmark'
+    jvmArgs '-Xms512m', '-Xmx2g'
+}
+
+tasks.register('pipelineTest', JavaExec) {
+    dependsOn compileJava
+    classpath = sourceSets.main.runtimeClasspath + universalOnnxRuntimeFiles
+    mainClass = 'th.in.midnight_network.immensa.pipeline.PipelineTest'
+    jvmArgs '-Xmx8g'
+}
+
+// ---------------------------------------------------------------------------
+// Expose sources/resources to the loader modules (consumed as SOURCE, not as
+// a jar). See buildSrc/src/main/groovy/multiloader-loader.gradle.
+// ---------------------------------------------------------------------------
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}
+
+// Implement mcgradleconventions loader attribute (prevents loom/MDG variant
+// collisions when loaders resolve :common).
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    def conf = configurations.findByName(variant)
+    if (conf != null) {
+        conf.attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant ->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'common')
+            }
+        }
+    }
+}
+
+String sha256Hex(byte[] fileBytes) {
+    MessageDigest messageDigest = MessageDigest.getInstance('SHA-256')
+    byte[] digestBytes = messageDigest.digest(fileBytes)
+    StringBuilder hexBuilder = new StringBuilder(digestBytes.length * 2)
+    for (byte digestByte : digestBytes) {
+        hexBuilder.append(String.format('%02x', digestByte))
+    }
+    return hexBuilder.toString()
+}

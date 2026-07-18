@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_swamp",
+      "required": false
+    },
+    {
+      "id": "minecraft:swamp",
+      "required": false
+    },
+    {
+      "id": "minecraft:mangrove_swamp",
+      "required": false
+    },
+    {
+      "id": "still_life:temperate_swamp",
+      "required": false
+    },
+    {
+      "id": "still_life:mangrove_marsh",
+      "required": false
+    }
+  ]
+}

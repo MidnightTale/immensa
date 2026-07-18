@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:deep_dark",
+      "required": false
+    },
+    {
+      "id": "still_life:haunted_depths",
+      "required": false
+    },
+    {
+      "id": "still_life:infested_tunnels",
+      "required": false
+    },
+    {
+      "id": "still_life:scorched_caves",
+      "required": false
+    },
+    {
+      "id": "immensa:echoing_abyss",
+      "required": false
+    },
+    {
+      "id": "immensa:volcanic_chambers",
+      "required": false
+    }
+  ]
+}

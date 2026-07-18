@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#c:is_jungle",
+      "required": false
+    },
+    {
+      "id": "#minecraft:is_jungle",
+      "required": false
+    },
+    {
+      "id": "minecraft:jungle",
+      "required": false
+    },
+    {
+      "id": "still_life:tropical_rainforest",
+      "required": false
+    }
+  ]
+}

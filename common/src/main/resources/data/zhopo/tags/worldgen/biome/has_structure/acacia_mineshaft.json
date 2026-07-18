@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "#immensa:compat/cave_hot",
+    "#immensa:compat/cave_temperate"
+  ]
+}

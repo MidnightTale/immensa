@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "immensa",
+  "version": "${version}",
+  "name": "Immensa",
+  "description": "Terrain Diffusion in Minecraft",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/immensa/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "th.in.midnight_network.immensa.fabric.ImmensaFabric"
+    ]
+  },
+  "mixins": [
+    "immensa.mixins.json",
+    {
+      "config": "immensa.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

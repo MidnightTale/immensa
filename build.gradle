@@ -1,0 +1,25 @@
+plugins {
+    // Loaded here so subprojects can apply them without a version. Neither is
+    // applied to the root project itself.
+    id 'fabric-loom' version '1.17.14' apply false
+    id 'net.neoforged.moddev' version '2.0.142' apply false
+}
+
+subprojects {
+    group = rootProject.property('maven_group')
+}
+
+// Convenience meta-tasks that rebuild every module for a single ONNX variant.
+def isWindows = System.getProperty('os.name').toLowerCase().startsWith('windows')
+def gradlewExecutable = rootProject.file(isWindows ? 'gradlew.bat' : 'gradlew').absolutePath
+
+['Cuda', 'Dml', 'Cpu'].each { variant ->
+    tasks.register("build${variant}", Exec) {
+        workingDir rootProject.projectDir
+        commandLine gradlewExecutable, 'build', "-Puse${variant}=true"
+    }
+}
+
+tasks.register('buildAll') {
+    dependsOn 'buildCuda', 'buildDml', 'buildCpu'
+}
