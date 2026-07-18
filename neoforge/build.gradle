@@ -39,6 +39,21 @@ processResources {
     }
 }
 
+// MDG assembles dev-run classpaths from module artifacts and silently drops
+// self-resolving file dependencies, so the universal ONNX runtime that
+// immensa-packaging adds as `implementation files(...)` never reaches
+// runServer/runClient (only the flattened production jar carries it). Hand the
+// same jar to each run's additionalRuntimeClasspath so dev runs can load the
+// ML models exactly like the shipped universal jar does.
+def universalOnnxRuntimeJar = project(':common').tasks.named('buildUniversalOnnxRuntime', Jar)
+def universalOnnxRuntimeFiles = files(universalOnnxRuntimeJar.flatMap { it.archiveFile })
+['client', 'server'].each { runName ->
+    def runClasspath = configurations.findByName("${runName}AdditionalRuntimeClasspath")
+    if (runClasspath != null) {
+        dependencies.add(runClasspath.name, universalOnnxRuntimeFiles)
+    }
+}
+
 // Implement mcgradleconventions loader attribute (prevents loom/MDG variant
 // collisions when resolving :common).
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
