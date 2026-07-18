@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - multiloader
+      - 1.21.1
     tags:
       - "v*"
   pull_request:

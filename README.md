@@ -14,10 +14,10 @@ Legacy platform-specific CUDA, DirectML and CPU builds remain available to sourc
 
 ## Requirements
 
-- Minecraft 1.21.11, running on Java 21 or higher
+- Minecraft 1.21.1, running on Java 21 or higher
 - One of the following mod loaders:
-  - [Fabric](https://fabricmc.net/) Loader 0.19.3 or higher, with the [Fabric API](https://modrinth.com/mod/fabric-api) mod installed
-  - [NeoForge](https://neoforged.net/) 21.11.44 or higher
+  - [Fabric](https://fabricmc.net/) Loader 0.19.3 or higher, with the [Fabric API](https://modrinth.com/mod/fabric-api) mod for Minecraft 1.21.1 installed
+  - [NeoForge](https://neoforged.net/) 21.1.240 or higher
 - Windows with a GPU OR Linux with an NVIDIA GPU is strongly recommended. CPU inference works but is very slow.
 - VRAM (GPU RAM) needed: 1.5GB
 - RAM needed: 2.5GB (May need to increase Minecraft's RAM allocation)
@@ -379,7 +379,7 @@ Output jars:
 - `fabric/build/libs/immensa-fabric-<version>.jar`
 - `neoforge/build/libs/immensa-neoforge-<version>.jar`
 
-`<version>` is `1.0.0-<variant>+1.21.11`, e.g. `1.0.0-universal+1.21.11`. The mod id and
+`<version>` is `1.0.0-<variant>+1.21.1`, e.g. `1.0.0-universal+1.21.1`. The mod id and
 registry/datapack namespace is `immensa` on both loaders, so worlds and datapacks behave
 the same on either loader.
 
