@@ -1,22 +1,23 @@
 {
-  "attributes": {
-    "minecraft:audio/background_music": {
-      "default": {
-        "max_delay": 24000,
-        "min_delay": 12000,
-        "sound": "minecraft:music.overworld.deep_dark"
-      }
-    },
-    "minecraft:visual/sky_color": "#78a7ff"
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
   },
-  "carvers": [
-    "minecraft:cave",
-    "minecraft:cave_extra_underground",
-    "minecraft:canyon"
-  ],
   "downfall": 0.3,
   "effects": {
-    "water_color": "#294b59"
+    "fog_color": 12638463,
+    "music": {
+      "max_delay": 24000,
+      "min_delay": 12000,
+      "replace_current_music": false,
+      "sound": "minecraft:music.overworld.deep_dark"
+    },
+    "sky_color": 7907327,
+    "water_color": 2706265,
+    "water_fog_color": 329011
   },
   "features": [
     [],
@@ -83,15 +84,15 @@
     "misc": [],
     "monster": [
       {
-        "type": "minecraft:enderman",
         "maxCount": 2,
         "minCount": 1,
+        "type": "minecraft:enderman",
         "weight": 10
       },
       {
-        "type": "minecraft:skeleton",
         "maxCount": 2,
         "minCount": 1,
+        "type": "minecraft:skeleton",
         "weight": 25
       }
     ],
