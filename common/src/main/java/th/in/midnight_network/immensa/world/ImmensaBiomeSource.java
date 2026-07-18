@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
@@ -30,9 +30,9 @@ import java.util.stream.Stream;
 import static java.util.Map.entry;
 
 public class ImmensaBiomeSource extends BiomeSource {
-    private static final ResourceKey<Biome> FOREST_SPARSE = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("immensa", "forest_sparse"));
-    private static final ResourceKey<Biome> TAIGA_SPARSE = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("immensa", "taiga_sparse"));
-    private static final ResourceKey<Biome> SNOWY_TAIGA_SPARSE = ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("immensa", "snowy_taiga_sparse"));
+    private static final ResourceKey<Biome> FOREST_SPARSE = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("immensa", "forest_sparse"));
+    private static final ResourceKey<Biome> TAIGA_SPARSE = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("immensa", "taiga_sparse"));
+    private static final ResourceKey<Biome> SNOWY_TAIGA_SPARSE = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("immensa", "snowy_taiga_sparse"));
     private static final ResourceKey<Biome> LIMESTONE_CATHEDRAL = immensaBiome("limestone_cathedral");
     private static final ResourceKey<Biome> CRYSTAL_GROTTO = immensaBiome("crystal_grotto");
     private static final ResourceKey<Biome> SUBTERRANEAN_WETLANDS = immensaBiome("subterranean_wetlands");
@@ -170,11 +170,11 @@ public class ImmensaBiomeSource extends BiomeSource {
     }
 
     private Holder<Biome> stillLifeBiome(String path) {
-        return biomeLookup.getOrThrow(ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("still_life", path)));
+        return biomeLookup.getOrThrow(ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("still_life", path)));
     }
 
     private static ResourceKey<Biome> immensaBiome(String path) {
-        return ResourceKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("immensa", path));
+        return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("immensa", path));
     }
 
     @Override

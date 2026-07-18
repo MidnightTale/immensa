@@ -47,8 +47,8 @@ public final class CaveFluidDrainer {
                 tileStartZ, tileStartX, tileStartZ + tileSize, tileStartX + tileSize);
         if (data == null || data.heightmap == null) return;
 
-        int bottomY = chunk.getMinY();
-        int topY = chunk.getMaxY();
+        int bottomY = chunk.getMinBuildHeight();
+        int topY = chunk.getMaxBuildHeight();
         long worldSeed = LocalTerrainProvider.getSeed();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int localZ = 0; localZ < 16; localZ++) {
@@ -75,7 +75,7 @@ public final class CaveFluidDrainer {
                         continue;
                     }
                     if (state.is(Blocks.WATER) || state.is(Blocks.LAVA)) {
-                        chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), 0);
+                        chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
                     }
                 }
                 if (networkLavaSurface != Integer.MIN_VALUE) {
@@ -96,7 +96,7 @@ public final class CaveFluidDrainer {
      */
     private static void fillDeepLavaColumn(ChunkAccess chunk, BlockPos.MutableBlockPos pos,
                                            int x, int z, int surfaceY, long worldSeed) {
-        if (surfaceY <= chunk.getMinY() || surfaceY > chunk.getMaxY()) return;
+        if (surfaceY <= chunk.getMinBuildHeight() || surfaceY > chunk.getMaxBuildHeight()) return;
         if (!ImmensaCaveSampler.isDeepLavaInterior(
                 x, surfaceY, z, worldSeed)) return;
 
@@ -105,7 +105,7 @@ public final class CaveFluidDrainer {
         if (!isReplaceableFluidColumn(surface)) return;
 
         int floorY = Integer.MIN_VALUE;
-        for (int y = surfaceY - 1; y >= chunk.getMinY(); y--) {
+        for (int y = surfaceY - 1; y >= chunk.getMinBuildHeight(); y--) {
             pos.set(x, y, z);
             BlockState state = chunk.getBlockState(pos);
             if (isReplaceableFluidColumn(state)) continue;
@@ -121,7 +121,7 @@ public final class CaveFluidDrainer {
         }
         for (int y = floorY + 1; y <= surfaceY; y++) {
             pos.set(x, y, z);
-            chunk.setBlockState(pos, lava, 0);
+            chunk.setBlockState(pos, lava, false);
         }
     }
 
@@ -163,8 +163,8 @@ public final class CaveFluidDrainer {
     private static void placePoolColumn(ChunkAccess chunk, BlockPos.MutableBlockPos pos,
                                         int x, int z, int groundY, CavePool pool) {
         int surfaceY = pool.surfaceY;
-        if (surfaceY <= chunk.getMinY() + 1
-                || surfaceY >= chunk.getMaxY() - 2
+        if (surfaceY <= chunk.getMinBuildHeight() + 1
+                || surfaceY >= chunk.getMaxBuildHeight() - 2
                 || surfaceY > groundY - 18) {
             return;
         }
@@ -176,7 +176,7 @@ public final class CaveFluidDrainer {
             if (!chunk.getBlockState(pos).isAir()) return;
         }
 
-        int minimumFloor = Math.max(chunk.getMinY(), surfaceY - pool.maxDepth);
+        int minimumFloor = Math.max(chunk.getMinBuildHeight(), surfaceY - pool.maxDepth);
         int floorY = Integer.MIN_VALUE;
         for (int y = surfaceY - 1; y >= minimumFloor; y--) {
             pos.set(x, y, z);
@@ -196,7 +196,7 @@ public final class CaveFluidDrainer {
         }
         for (int y = floorY + 1; y <= surfaceY; y++) {
             pos.set(x, y, z);
-            chunk.setBlockState(pos, fluid, 0);
+            chunk.setBlockState(pos, fluid, false);
         }
         pos.set(x, floorY, z);
         BlockState naturalFloor = chunk.getBlockState(pos);
@@ -213,7 +213,7 @@ public final class CaveFluidDrainer {
                         ? Blocks.CLAY.defaultBlockState()
                         : Blocks.GRAVEL.defaultBlockState();
             }
-            chunk.setBlockState(pos, replacement, 0);
+            chunk.setBlockState(pos, replacement, false);
         }
     }
 

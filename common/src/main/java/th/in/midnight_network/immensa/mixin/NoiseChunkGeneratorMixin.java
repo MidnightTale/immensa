@@ -14,6 +14,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
@@ -72,11 +73,13 @@ public abstract class NoiseChunkGeneratorMixin {
         cir.setReturnValue(delayed);
     }
 
-    @Inject(method = "applyCarvers(Lnet/minecraft/server/level/WorldGenRegion;JLnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/biome/BiomeManager;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/chunk/ChunkAccess;)V",
+    // 1.21.1 signature carries the carving step as a trailing parameter.
+    @Inject(method = "applyCarvers(Lnet/minecraft/server/level/WorldGenRegion;JLnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/biome/BiomeManager;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;)V",
             at = @At("TAIL"))
     private void immensa$placeHydrology(WorldGenRegion region, long seed, RandomState noiseConfig,
                                                     BiomeManager biomeAccess, StructureManager structures,
-                                                    ChunkAccess chunk, CallbackInfo ci) {
+                                                    ChunkAccess chunk, GenerationStep.Carving carvingStep,
+                                                    CallbackInfo ci) {
         NoiseBasedChunkGenerator self = (NoiseBasedChunkGenerator) (Object) this;
         if (self.getBiomeSource() instanceof ImmensaBiomeSource) {
             ImmensaGenerationPipeline.afterCarvers(region, chunk);

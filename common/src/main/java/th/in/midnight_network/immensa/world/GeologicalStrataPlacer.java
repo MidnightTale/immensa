@@ -34,8 +34,8 @@ public final class GeologicalStrataPlacer {
                 tileStartZ, tileStartX, tileStartZ + tileSize, tileStartX + tileSize);
         if (data == null || data.geology == null) return;
 
-        int bottomY = Math.max(chunk.getMinY(), MIN_PROCESS_Y);
-        int topY = Math.min(chunk.getMaxY(), MAX_PROCESS_Y);
+        int bottomY = Math.max(chunk.getMinBuildHeight(), MIN_PROCESS_Y);
+        int topY = Math.min(chunk.getMaxBuildHeight(), MAX_PROCESS_Y);
         if (bottomY > topY) return;
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -67,9 +67,9 @@ public final class GeologicalStrataPlacer {
                                 geology, seed);
                     }
                     if (deepslate && existing.is(Blocks.STONE)) {
-                        chunk.setBlockState(pos, Blocks.DEEPSLATE.defaultBlockState(), 0);
+                        chunk.setBlockState(pos, Blocks.DEEPSLATE.defaultBlockState(), false);
                     } else if (!deepslate && existing.is(Blocks.DEEPSLATE)) {
-                        chunk.setBlockState(pos, Blocks.STONE.defaultBlockState(), 0);
+                        chunk.setBlockState(pos, Blocks.STONE.defaultBlockState(), false);
                     }
                 }
             }

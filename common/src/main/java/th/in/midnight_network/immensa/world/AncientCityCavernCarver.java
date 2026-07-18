@@ -53,7 +53,7 @@ public final class AncientCityCavernCarver {
         int maxX = Math.min(chunkBox.maxX(), cityBox.maxX() + PIECE_INFLUENCE);
         int minZ = Math.max(chunkBox.minZ(), cityBox.minZ() - PIECE_INFLUENCE);
         int maxZ = Math.min(chunkBox.maxZ(), cityBox.maxZ() + PIECE_INFLUENCE);
-        int floorY = Math.max(world.getMinY() + 2, cityBox.minY() + 1);
+        int floorY = Math.max(world.getMinBuildHeight() + 2, cityBox.minY() + 1);
         if (minX > maxX || minZ > maxZ) return;
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -62,7 +62,7 @@ public final class AncientCityCavernCarver {
                 ColumnProfile profile = columnProfile(pieceBoxes, x, z, floorY, worldSeed);
                 if (!profile.carve()) continue;
 
-                int ceilingY = Math.min(world.getMaxY() - 1, profile.ceilingY());
+                int ceilingY = Math.min(world.getMaxBuildHeight() - 1, profile.ceilingY());
                 for (int y = floorY; y <= ceilingY; y++) {
                     pos.set(x, y, z);
                     BlockState state = world.getBlockState(pos);
@@ -78,7 +78,7 @@ public final class AncientCityCavernCarver {
                 // pieces. This stops lava/void breakthroughs without creating
                 // another giant rectangular platform beneath the whole city.
                 if (profile.foundationTopY() != Integer.MIN_VALUE) {
-                    int foundationBottom = Math.max(world.getMinY() + 1,
+                    int foundationBottom = Math.max(world.getMinBuildHeight() + 1,
                             profile.foundationTopY() - FOUNDATION_DEPTH + 1);
                     for (int y = foundationBottom; y <= profile.foundationTopY(); y++) {
                         pos.set(x, y, z);

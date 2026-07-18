@@ -14,12 +14,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gamerules.GameRules;
-import java.net.URI;
+import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +32,10 @@ public final class Immensa {
     public static final String MOD_ID = "immensa";
     private static final Logger LOG = LoggerFactory.getLogger(Immensa.class);
 
-    public static final Identifier IMMENSA_BIOME_SOURCE_ID =
-            Identifier.fromNamespaceAndPath(MOD_ID, "terrain_diffusion");
-    public static final Identifier IMMENSA_DENSITY_FUNCTION_ID =
-            Identifier.fromNamespaceAndPath(MOD_ID, "terrain_diffusion");
+    public static final ResourceLocation IMMENSA_BIOME_SOURCE_ID =
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "terrain_diffusion");
+    public static final ResourceLocation IMMENSA_DENSITY_FUNCTION_ID =
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "terrain_diffusion");
     public static final MapCodec<ImmensaBiomeSource> IMMENSA_BIOME_SOURCE_CODEC =
             ImmensaBiomeSource.CODEC;
     public static final MapCodec<ImmensaDensityFunction> IMMENSA_DENSITY_FUNCTION_CODEC =
@@ -72,7 +71,9 @@ public final class Immensa {
         if (level.dimension() == Level.OVERWORLD
                 && level.getChunkSource().getGenerator().getBiomeSource()
                 instanceof ImmensaBiomeSource) {
-            level.getGameRules().set(GameRules.WATER_SOURCE_CONVERSION, false, level.getServer());
+            // 1.21.1 API: GameRules.Key + getRule().set(value, server).
+            level.getGameRules().getRule(GameRules.RULE_WATER_SOURCE_CONVERSION)
+                    .set(false, level.getServer());
             LOG.info("Disabled water source conversion for Terrain Diffusion world");
             WorldScaleManager.initializeForWorld(level);
             LocalTerrainProvider.init(level.getSeed());
@@ -88,7 +89,7 @@ public final class Immensa {
             int port = ExplorerServer.startIfNotRunning();
             String url = "http://localhost:" + port;
             MutableComponent link = Component.literal(url)
-                    .withStyle(s -> s.withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
+                    .withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
                                   .withUnderlined(true));
             ctx.getSource().sendSuccess(
                     () -> Component.literal("Terrain Explorer: ").append(link),

@@ -34,8 +34,8 @@ public final class TrialChamberPlacementValidator {
         for (int shift : VERTICAL_OFFSETS) {
             int minY = box.minY() + shift;
             int maxY = box.maxY() + shift;
-            if (minY - 8 < context.heightAccessor().getMinY() + 2
-                    || maxY + 10 > context.heightAccessor().getMaxY() - 2) {
+            if (minY - 8 < context.heightAccessor().getMinBuildHeight() + 2
+                    || maxY + 10 > context.heightAccessor().getMaxBuildHeight() - 2) {
                 continue;
             }
 

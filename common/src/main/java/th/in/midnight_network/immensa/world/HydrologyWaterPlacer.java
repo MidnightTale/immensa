@@ -47,33 +47,33 @@ public final class HydrologyWaterPlacer {
             // Never bake transient weather into generated blocks. Chunks are
             // generated at different times; raising only those created during
             // rain permanently leaves one-block walls across a single lake.
-            waterY = Math.min(waterY, chunk.getMaxY());
+            waterY = Math.min(waterY, chunk.getMaxBuildHeight());
             if (waterY < groundY) continue;
             pos.set(worldX, groundY - 1, worldZ);
             chunk.setBlockState(pos, riverBed(
-                    worldX, worldZ, data.lakeMask[dataZ][dataX], landforms, worldSeed), 0);
+                    worldX, worldZ, data.lakeMask[dataZ][dataX], landforms, worldSeed), false);
             for (int y = groundY; y <= waterY; y++) {
                 pos.set(worldX, y, worldZ);
                 // The heightmap already designates this volume as channel.
                 // Replace stray surface blocks too; air-only filling leaves
                 // grass shelves and holes that split a connected river.
-                chunk.setBlockState(pos, Blocks.WATER.defaultBlockState(), 0);
+                chunk.setBlockState(pos, Blocks.WATER.defaultBlockState(), false);
                 chunk.markPosForPostprocessing(pos);
             }
-            if ((landforms & TerrainMetadata.BRIDGE_SITE) != 0 && waterY + 1 <= chunk.getMaxY()) {
+            if ((landforms & TerrainMetadata.BRIDGE_SITE) != 0 && waterY + 1 <= chunk.getMaxBuildHeight()) {
                 pos.set(worldX, waterY + 1, worldZ);
-                chunk.setBlockState(pos, Blocks.OAK_PLANKS.defaultBlockState(), 0);
-            } else if ((landforms & TerrainMetadata.PORT_SITE) != 0 && waterY + 1 <= chunk.getMaxY()) {
+                chunk.setBlockState(pos, Blocks.OAK_PLANKS.defaultBlockState(), false);
+            } else if ((landforms & TerrainMetadata.PORT_SITE) != 0 && waterY + 1 <= chunk.getMaxBuildHeight()) {
                 pos.set(worldX, waterY + 1, worldZ);
-                chunk.setBlockState(pos, Blocks.SPRUCE_PLANKS.defaultBlockState(), 0);
+                chunk.setBlockState(pos, Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
             }
         }
     }
 
     private static void placeDrySurface(ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int z, int groundY,
                                         short biomeId, short landforms, byte geology, byte soilDepth) {
-        int surfaceY = Math.min(chunk.getMaxY(), groundY - 1);
-        if (surfaceY < chunk.getMinY()) return;
+        int surfaceY = Math.min(chunk.getMaxBuildHeight(), groundY - 1);
+        if (surfaceY < chunk.getMinBuildHeight()) return;
         pos.set(x, surfaceY, z);
         BlockState current = chunk.getBlockState(pos);
         if (current.isAir() || current.is(Blocks.WATER) || current.is(Blocks.LAVA)) return;
@@ -95,7 +95,7 @@ public final class HydrologyWaterPlacer {
         } else if (geology == TerrainMetadata.GEO_GLACIAL && soilDepth <= 2 && (hash & 7) < 2) {
             replacement = Blocks.GRAVEL.defaultBlockState();
         }
-        if (replacement != null) chunk.setBlockState(pos, replacement, 0);
+        if (replacement != null) chunk.setBlockState(pos, replacement, false);
 
     }
 
@@ -128,12 +128,12 @@ public final class HydrologyWaterPlacer {
 
         for (int layer = 0; layer < depth; layer++) {
             int y = surfaceY - layer;
-            if (y < chunk.getMinY()) break;
+            if (y < chunk.getMinBuildHeight()) break;
             pos.set(x, y, z);
             BlockState existing = chunk.getBlockState(pos);
             if (existing.isAir() || existing.is(Blocks.WATER) || existing.is(Blocks.LAVA)) break;
             BlockState state = layer == 0 && top != null ? top : under;
-            if (state != null) chunk.setBlockState(pos, state, 0);
+            if (state != null) chunk.setBlockState(pos, state, false);
         }
     }
 

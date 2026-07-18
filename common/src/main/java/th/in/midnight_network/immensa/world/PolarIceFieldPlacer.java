@@ -69,8 +69,8 @@ public final class PolarIceFieldPlacer {
                     waterY = SEA_LEVEL;
                     depthMeters = Math.max(1f, -terrainMeters);
                 }
-                if (waterY < chunk.getMinY()
-                        || waterY >= chunk.getMaxY()) continue;
+                if (waterY < chunk.getMinBuildHeight()
+                        || waterY >= chunk.getMaxBuildHeight()) continue;
                 waterY = findSurfaceWaterY(chunk, pos, worldX, worldZ, waterY);
                 if (waterY == Integer.MIN_VALUE) continue;
 
@@ -86,10 +86,10 @@ public final class PolarIceFieldPlacer {
                     // packed/blue iceberg structures.
                     if (surface.is(Blocks.ICE) && isClearAbove(above)) {
                         pos.set(worldX, waterY, worldZ);
-                        chunk.setBlockState(pos, Blocks.WATER.defaultBlockState(), 0);
+                        chunk.setBlockState(pos, Blocks.WATER.defaultBlockState(), false);
                         if (above.is(Blocks.SNOW)) {
                             pos.set(worldX, waterY + 1, worldZ);
-                            chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), 0);
+                            chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
                         }
                     }
                     continue;
@@ -104,18 +104,18 @@ public final class PolarIceFieldPlacer {
                 int placed = 0;
                 for (int layer = 0; layer < sample.thickness(); layer++) {
                     int y = waterY - layer;
-                    if (y < chunk.getMinY()) break;
+                    if (y < chunk.getMinBuildHeight()) break;
                     pos.set(worldX, y, worldZ);
                     BlockState existing = chunk.getBlockState(pos);
                     if (!existing.is(Blocks.WATER) && !existing.is(Blocks.ICE)) break;
-                    chunk.setBlockState(pos, ice, 0);
+                    chunk.setBlockState(pos, ice, false);
                     placed++;
                 }
                 if (placed == 0 || sample.snowLayers() <= 0) continue;
                 pos.set(worldX, waterY + 1, worldZ);
                 if (chunk.getBlockState(pos).isAir()) {
                     chunk.setBlockState(pos, Blocks.SNOW.defaultBlockState()
-                            .setValue(SnowLayerBlock.LAYERS, sample.snowLayers()), 0);
+                            .setValue(SnowLayerBlock.LAYERS, sample.snowLayers()), false);
                 }
             }
         }
@@ -258,8 +258,8 @@ public final class PolarIceFieldPlacer {
      */
     private static int findSurfaceWaterY(ChunkAccess chunk, BlockPos.MutableBlockPos pos,
                                          int x, int z, int preferredY) {
-        int top = Math.min(chunk.getMaxY() - 1, preferredY + 1);
-        int bottom = Math.max(chunk.getMinY(), preferredY - 3);
+        int top = Math.min(chunk.getMaxBuildHeight() - 1, preferredY + 1);
+        int bottom = Math.max(chunk.getMinBuildHeight(), preferredY - 3);
         for (int y = top; y >= bottom; y--) {
             pos.set(x, y, z);
             BlockState state = chunk.getBlockState(pos);

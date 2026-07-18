@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
@@ -31,10 +31,10 @@ public abstract class StructureMixin {
         // and footprint checks. Do not silently suppress those structures with
         // Terrain Diffusion's conservative vanilla-site filter. Replacement
         // packs that keep a minecraft:* structure id still retain the filter.
-        Identifier structureId = context.registryAccess()
-                .lookupOrThrow(Registries.STRUCTURE)
+        ResourceLocation structureId = context.registryAccess()
+                .registryOrThrow(Registries.STRUCTURE)
                 .getKey((Structure) (Object) this);
-        if (structureId == null || !Identifier.DEFAULT_NAMESPACE.equals(structureId.getNamespace())) return;
+        if (structureId == null || !ResourceLocation.DEFAULT_NAMESPACE.equals(structureId.getNamespace())) return;
 
         if (structureId.getPath().equals("trial_chambers")) {
             Structure.GenerationStub position = result.get();

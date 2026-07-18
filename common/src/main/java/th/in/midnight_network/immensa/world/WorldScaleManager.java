@@ -23,7 +23,7 @@ public final class WorldScaleManager {
      */
     public static void initializeForWorld(ServerLevel serverWorld) {
         WorldScaleSettingsState worldScaleSettingsState = serverWorld.getDataStorage()
-                .computeIfAbsent(WorldScaleSettingsState.TYPE);
+                .computeIfAbsent(WorldScaleSettingsState.FACTORY, WorldScaleSettingsState.ID);
 
         if (!worldScaleSettingsState.hasExplicitScale()) {
             Integer pendingScale = WorldScaleSelectionState.consumePendingScale();
@@ -47,7 +47,7 @@ public final class WorldScaleManager {
     public static void setCurrentScale(ServerLevel serverWorld, int configuredScale) {
         int clampedScale = clampScale(configuredScale);
         WorldScaleSettingsState worldScaleSettingsState = serverWorld.getDataStorage()
-                .computeIfAbsent(WorldScaleSettingsState.TYPE);
+                .computeIfAbsent(WorldScaleSettingsState.FACTORY, WorldScaleSettingsState.ID);
         worldScaleSettingsState.setScale(clampedScale);
         currentScale = clampedScale;
     }

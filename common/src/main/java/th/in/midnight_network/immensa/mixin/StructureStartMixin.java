@@ -3,7 +3,7 @@ package th.in.midnight_network.immensa.mixin;
 import th.in.midnight_network.immensa.world.AncientCityCavernCarver;
 import th.in.midnight_network.immensa.world.ImmensaBiomeSource;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
@@ -35,10 +35,10 @@ public abstract class StructureStartMixin {
                 || pieceContainer.isEmpty()) {
             return;
         }
-        Identifier id = world.registryAccess()
-                .lookupOrThrow(Registries.STRUCTURE)
+        ResourceLocation id = world.registryAccess()
+                .registryOrThrow(Registries.STRUCTURE)
                 .getKey(structure);
-        if (id == null || !id.equals(Identifier.withDefaultNamespace("ancient_city"))) return;
+        if (id == null || !id.equals(ResourceLocation.withDefaultNamespace("ancient_city"))) return;
 
         AncientCityCavernCarver.carve(
                 world, pieceContainer, chunkBox, world.getSeed());

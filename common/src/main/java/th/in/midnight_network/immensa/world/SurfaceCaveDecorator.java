@@ -90,8 +90,8 @@ public final class SurfaceCaveDecorator {
 
     private static int findInteriorFloor(ChunkAccess chunk, BlockPos.MutableBlockPos pos,
                                          int x, int z, int groundY) {
-        int top = Math.min(chunk.getMaxY() - 4, groundY - 3);
-        int bottom = Math.max(chunk.getMinY() + 3, groundY - MAX_DECORATED_DEPTH);
+        int top = Math.min(chunk.getMaxBuildHeight() - 4, groundY - 3);
+        int bottom = Math.max(chunk.getMinBuildHeight() + 3, groundY - MAX_DECORATED_DEPTH);
         boolean enteredCavity = false;
         int openHeight = 0;
         for (int y = top; y >= bottom; y--) {
@@ -126,13 +126,13 @@ public final class SurfaceCaveDecorator {
                     ? Blocks.GRASS_BLOCK.defaultBlockState() : Blocks.MOSS_BLOCK.defaultBlockState();
         }
         pos.set(x, floorY, z);
-        chunk.setBlockState(pos, surface, 0);
-        if (floorY - 1 > chunk.getMinY()) {
+        chunk.setBlockState(pos, surface, false);
+        if (floorY - 1 > chunk.getMinBuildHeight()) {
             pos.set(x, floorY - 1, z);
             BlockState below = chunk.getBlockState(pos);
             if (!below.isAir() && below.getFluidState().isEmpty()) {
                 chunk.setBlockState(pos, (hash & 15L) == 0L
-                        ? Blocks.ROOTED_DIRT.defaultBlockState() : Blocks.DIRT.defaultBlockState(), 0);
+                        ? Blocks.ROOTED_DIRT.defaultBlockState() : Blocks.DIRT.defaultBlockState(), false);
             }
         }
         return true;
@@ -184,7 +184,7 @@ public final class SurfaceCaveDecorator {
         else if (choice < 24 && depth > 16) plant = Blocks.MOSS_CARPET.defaultBlockState();
         if (plant != null) {
             pos.set(x, plantY, z);
-            chunk.setBlockState(pos, plant, 0);
+            chunk.setBlockState(pos, plant, false);
         }
     }
 
@@ -200,7 +200,7 @@ public final class SurfaceCaveDecorator {
         }
         for (int y = 0; y < trunkHeight; y++) {
             pos.set(x, baseY + y, z);
-            chunk.setBlockState(pos, Blocks.OAK_LOG.defaultBlockState(), 0);
+            chunk.setBlockState(pos, Blocks.OAK_LOG.defaultBlockState(), false);
         }
         BlockState leaves = ((hash >>> 23) & 3L) == 0L
                 ? Blocks.FLOWERING_AZALEA_LEAVES.defaultBlockState()
@@ -212,7 +212,7 @@ public final class SurfaceCaveDecorator {
                 int y = canopyY + dy;
                 if (isAir(chunk, pos, x + dx, y, z + dz)) {
                     pos.set(x + dx, y, z + dz);
-                    chunk.setBlockState(pos, leaves, 0);
+                    chunk.setBlockState(pos, leaves, false);
                 }
             }
         }
@@ -245,11 +245,11 @@ public final class SurfaceCaveDecorator {
             BlockState hanging = offset == length
                     ? Blocks.CAVE_VINES.defaultBlockState()
                     : Blocks.CAVE_VINES_PLANT.defaultBlockState();
-            chunk.setBlockState(pos, hanging, 0);
+            chunk.setBlockState(pos, hanging, false);
         }
         if (((hash >>> 43) & 7L) == 0L && isAir(chunk, pos, x + 1, ceilingY - 1, z)) {
             pos.set(x + 1, ceilingY - 1, z);
-            chunk.setBlockState(pos, Blocks.HANGING_ROOTS.defaultBlockState(), 0);
+            chunk.setBlockState(pos, Blocks.HANGING_ROOTS.defaultBlockState(), false);
         }
     }
 
@@ -263,7 +263,7 @@ public final class SurfaceCaveDecorator {
     }
 
     private static boolean isAir(ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int y, int z) {
-        if (y < chunk.getMinY() || y > chunk.getMaxY()) return false;
+        if (y < chunk.getMinBuildHeight() || y > chunk.getMaxBuildHeight()) return false;
         int startX = chunk.getPos().getMinBlockX();
         int startZ = chunk.getPos().getMinBlockZ();
         if (x < startX || x > startX + 15 || z < startZ || z > startZ + 15) return false;
