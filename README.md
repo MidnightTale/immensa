@@ -26,7 +26,7 @@ Legacy platform-specific CUDA, DirectML and CPU builds remain available to sourc
 
 **Linux GPU users:** First see [CUDA_INSTALL.md](CUDA_INSTALL.md).
 
-1. Download the Immensa jar for your loader (`immensa-fabric-<version>.jar` or `immensa-neoforge-<version>.jar`) from the Releases page of the Immensa GitHub repository and place it in your Minecraft `mods/` folder. Make sure the Minecraft version matches.
+1. Download the Immensa jar for your loader (`immensa-fabric-<version>.jar` or `immensa-neoforge-<version>.jar`) from the [Releases page](https://github.com/MidnightTale/immensa/releases) and place it in your Minecraft `mods/` folder. Make sure the Minecraft version matches.
 2. Launch Minecraft, at least once online to download the models (~2.5GB).
 3. Create a world, and select the **Terrain Diffusion** world type. Click **Customize** to set the `World Scale` (see [Per-world settings](#per-world-settings) below).
 4. The mod will search for a land spawn point near the world origin automatically. If the area around (0, 0) is entirely ocean, it may take a moment to find land. Use `/immensa-explore` (see below) to scout the world further.
@@ -346,7 +346,7 @@ This is typically due to an improper CUDA or cuDNN installation. See [CUDA_INSTA
 This typically indicates an "out of memory" error (the logs should show this as well).
 Immensa's models take up about 2.5GB of RAM, so make sure to allocate enough RAM to account for this.
 
-**If your issue is still not resolved, please open an issue on the Immensa GitHub repository.**
+**If your issue is still not resolved, please [open an issue](https://github.com/MidnightTale/immensa/issues) on the Immensa GitHub repository.**
 
 ## Building from Source
 
@@ -445,7 +445,7 @@ The terrain diversity far outpaces the biome diversity and there is a real oppor
 
 ## Relationship to upstream
 
-Immensa is a fork of terrain-diffusion-mc (https://github.com/xandergos/terrain-diffusion-mc) by Alexander Goslin. Relative to the original project, this fork has been substantially modified: it adds multiloader support (Fabric and NeoForge sharing one `common` module), renames the mod id and namespace to `immensa`, renames the configuration and data files, and continues feature development. Immensa is maintained by Midnight Network and is not affiliated with, endorsed by, or an official release of the original project. Bug reports and contributions for Immensa belong on the Immensa GitHub repository, not the upstream project.
+Immensa is a fork of terrain-diffusion-mc (https://github.com/xandergos/terrain-diffusion-mc) by Alexander Goslin. Relative to the original project, this fork has been substantially modified: it adds multiloader support (Fabric and NeoForge sharing one `common` module), renames the mod id and namespace to `immensa`, renames the configuration and data files, and continues feature development. Immensa is maintained by Midnight Network and is not affiliated with, endorsed by, or an official release of the original project. Bug reports and contributions for Immensa belong on the [Immensa GitHub repository](https://github.com/MidnightTale/immensa), not the upstream project.
 
 ## License
 
